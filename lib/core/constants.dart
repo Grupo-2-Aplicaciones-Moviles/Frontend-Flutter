@@ -8,6 +8,9 @@ class AppConstants {
 
   static const Duration connectTimeout = Duration(seconds: 30);
 
+  static const String termsAndConditionsUrl =
+      'https://www.freeprivacypolicy.com/live/91f9ef49-9bfd-412d-b6b1-5bb97c0f7455';
+
   // Preferences Keys
   static const String keyAuthToken = 'auth_token';
   static const String keyUserId = 'user_id';
