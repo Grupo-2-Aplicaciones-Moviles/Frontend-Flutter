@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weride_flutter/screens/profile/presentation/PaymentMethodsView.dart';
+import 'package:weride_flutter/screens/profile/presentation/PlansScreen.dart';
+import 'package:weride_flutter/screens/profile/presentation/WalletScreen.dart';
 
 import '../../core/theme.dart';
 import '../../providers/providers.dart';
@@ -116,9 +119,35 @@ class _SectionCard extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right,
                   color: WeRideColors.mediumGray),
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Próximamente'),
-                    duration: Duration(seconds: 1)));
+                if (items[i].$2 == 'Billetera') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const WalletScreen(),
+                    ),
+                  );
+                } else if (items[i].$2 == 'Planes') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PlansScreen(),
+                    ),
+                  );
+                } else if (items[i].$2 == 'Métodos de pago') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const PaymentMethodsView(),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Próximamente'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                }
               },
             ),
             if (i < items.length - 1)
