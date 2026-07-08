@@ -9,16 +9,27 @@ import '../../providers/providers.dart';
 
 class ReservationScreen extends StatefulWidget {
   final Vehicle vehicle;
-  const ReservationScreen({super.key, required this.vehicle});
+  final bool scheduled;
+  const ReservationScreen(
+      {super.key, required this.vehicle, this.scheduled = false});
 
   @override
   State<ReservationScreen> createState() => _ReservationScreenState();
 }
 
 class _ReservationScreenState extends State<ReservationScreen> {
-  DateTime _startDate = DateTime.now().add(const Duration(minutes: 15));
+  late DateTime _startDate;
   int _durationMinutes = 30;
   String _paymentMethod = AppConstants.paymentWallet;
+
+  @override
+  void initState() {
+    super.initState();
+    // "Reservar ahora" → inicio en 15 min. "Programar" → mañana a esta hora.
+    _startDate = widget.scheduled
+        ? DateTime.now().add(const Duration(days: 1))
+        : DateTime.now().add(const Duration(minutes: 15));
+  }
 
   DateTime get _endDate =>
       _startDate.add(Duration(minutes: _durationMinutes));
@@ -102,7 +113,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
     final dateFmt = DateFormat('dd/MM/yyyy · hh:mm a');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Reservar')),
+      appBar:
+          AppBar(title: Text(widget.scheduled ? 'Programar' : 'Reservar')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

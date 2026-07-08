@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../providers/providers.dart';
 import '../auth/login_screen.dart';
+import 'profile_sections.dart';
+import 'wallet_screen.dart';
+import 'plans_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -33,6 +36,10 @@ class ProfileScreen extends StatelessWidget {
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (_) => false,
     );
+  }
+
+  void _open(BuildContext context, Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
@@ -69,16 +76,40 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 28),
-          const _SectionCard(items: [
-            (Icons.account_balance_wallet_outlined, 'Billetera'),
-            (Icons.card_membership_outlined, 'Planes'),
-            (Icons.payment_outlined, 'Métodos de pago'),
+          _SectionCard(items: [
+            (
+              Icons.account_balance_wallet_outlined,
+              'Billetera',
+              () => _open(context, const WalletScreen())
+            ),
+            (
+              Icons.card_membership_outlined,
+              'Planes',
+              () => _open(context, const PlansScreen())
+            ),
+            (
+              Icons.payment_outlined,
+              'Métodos de pago',
+              () => _open(context, const PaymentMethodsScreen())
+            ),
           ]),
           const SizedBox(height: 16),
-          const _SectionCard(items: [
-            (Icons.settings_outlined, 'Configuración'),
-            (Icons.help_outline, 'Ayuda'),
-            (Icons.info_outline, 'Acerca de WeRide'),
+          _SectionCard(items: [
+            (
+              Icons.settings_outlined,
+              'Configuración',
+              () => _open(context, const SettingsScreen())
+            ),
+            (
+              Icons.help_outline,
+              'Ayuda',
+              () => _open(context, const HelpScreen())
+            ),
+            (
+              Icons.info_outline,
+              'Acerca de WeRide',
+              () => _open(context, const AboutScreen())
+            ),
           ]),
           const SizedBox(height: 24),
           OutlinedButton.icon(
@@ -100,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  final List<(IconData, String)> items;
+  final List<(IconData, String, VoidCallback)> items;
   const _SectionCard({required this.items});
 
   @override
@@ -115,11 +146,7 @@ class _SectionCard extends StatelessWidget {
               title: Text(items[i].$2),
               trailing: const Icon(Icons.chevron_right,
                   color: WeRideColors.mediumGray),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Próximamente'),
-                    duration: Duration(seconds: 1)));
-              },
+              onTap: items[i].$3,
             ),
             if (i < items.length - 1)
               const Divider(height: 1, color: Color(0xFF2A2A2A)),

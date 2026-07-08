@@ -2,6 +2,12 @@
 class AppConstants {
   AppConstants._();
 
+  // ============================================================
+  // MODO DEMO: true = datos de prueba locales (sin backend)
+  //            false = consume el backend Spring Boot real
+  // ============================================================
+  static const bool useMockApi = false;
+
   // API Configuration
   // Emulador Android: 10.0.2.2 | Dispositivo físico: IP local de tu PC
   static const String baseUrl = 'http://10.0.2.2:8080/api/v1';

@@ -56,6 +56,7 @@ class Vehicle {
   final String? image;
   final List<String>? features;
   final double? rating;
+  final double? totalKilometers;
 
   const Vehicle({
     required this.id,
@@ -76,6 +77,7 @@ class Vehicle {
     this.image,
     this.features,
     this.rating,
+    this.totalKilometers,
   });
 
   bool get isAvailable => status.toLowerCase() == 'available';
@@ -101,6 +103,7 @@ class Vehicle {
         image: json['image'] as String?,
         features: (json['features'] as List?)?.cast<String>(),
         rating: (json['rating'] as num?)?.toDouble(),
+        totalKilometers: (json['totalKilometers'] as num?)?.toDouble(),
       );
 }
 
