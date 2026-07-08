@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weride_flutter/screens/profile/presentation/PaymentMethodsView.dart';
+import 'package:weride_flutter/screens/profile/presentation/PlansScreen.dart';
+import 'package:weride_flutter/screens/profile/presentation/WalletScreen.dart';
 
 import '../../core/theme.dart';
 import '../../providers/providers.dart';

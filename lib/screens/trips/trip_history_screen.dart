@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'start_trip_screen.dart';
+
 
 import '../../core/constants.dart';
 import '../../core/theme.dart';
@@ -116,8 +118,10 @@ class _TripHistoryScreenState extends State<TripHistoryScreen> {
       itemCount: provider.bookings.length,
       itemBuilder: (context, i) {
         final b = provider.bookings[i];
-        final canCancel = b.status.toLowerCase() == 'confirmed' ||
-            b.status.toLowerCase() == 'draft';
+        final status = b.status.toLowerCase();
+        final canCancel = status == 'confirmed' || status == 'draft';
+        final canStart = status == 'confirmed';
+
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: Padding(
@@ -136,26 +140,23 @@ class _TripHistoryScreenState extends State<TripHistoryScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: _statusColor(b.status).withOpacity(0.15),
+                        color: _statusColor(b.status).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         AppConstants.statusDisplayName(b.status),
-                        style: TextStyle(
-                            color: _statusColor(b.status), fontSize: 12),
+                        style: TextStyle(color: _statusColor(b.status), fontSize: 12),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text('Vehículo #${b.vehicleId}',
-                    style: const TextStyle(
-                        color: WeRideColors.mediumGray, fontSize: 13)),
+                    style: const TextStyle(color: WeRideColors.mediumGray, fontSize: 13)),
                 if (b.startDate != null)
                   Text(
                     'Inicio: ${dateFmt.format(DateTime.parse(b.startDate!))}',
-                    style: const TextStyle(
-                        color: WeRideColors.mediumGray, fontSize: 13),
+                    style: const TextStyle(color: WeRideColors.mediumGray, fontSize: 13),
                   ),
                 if (b.finalCost != null || b.totalCost != null)
                   Padding(
@@ -163,17 +164,40 @@ class _TripHistoryScreenState extends State<TripHistoryScreen> {
                     child: Text(
                       'Total: S/ ${(b.finalCost ?? b.totalCost)!.toStringAsFixed(2)}',
                       style: const TextStyle(
-                          color: WeRideColors.energyGreen,
-                          fontWeight: FontWeight.bold),
+                          color: WeRideColors.energyGreen, fontWeight: FontWeight.bold),
                     ),
                   ),
-                if (canCancel)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => _cancel(b),
-                      child: const Text('Cancelar',
-                          style: TextStyle(color: WeRideColors.errorRed)),
+                if (canCancel || canStart)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (canCancel)
+                          TextButton(
+                            onPressed: () => _cancel(b),
+                            child: const Text('Cancelar',
+                                style: TextStyle(color: WeRideColors.errorRed)),
+                          ),
+                        if (canCancel && canStart) const SizedBox(width: 8),
+                        if (canStart)
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => StartTripScreen(booking: b),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: WeRideColors.energyGreen,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Iniciar viaje'),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
               ],

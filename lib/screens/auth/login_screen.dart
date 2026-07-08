@@ -1,6 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../providers/providers.dart';
 import '../main_shell.dart';
@@ -18,6 +21,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passCtrl = TextEditingController();
   bool _isRegister = false;
   bool _obscure = true;
+  bool _acceptedTerms = false;
+
+  Future<void> _openTerms() async {
+    final uri = Uri.parse(AppConstants.termsAndConditionsUrl);
+    final opened = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+    if (!mounted) return;
+    if (!opened) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('No se pudo abrir los Términos y Condiciones'),
+        backgroundColor: WeRideColors.errorRed,
+      ));
+    }
+  }
 
   @override
   void dispose() {
@@ -28,6 +44,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isRegister && !_acceptedTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Debes aceptar los Términos y Condiciones'),
+        backgroundColor: WeRideColors.errorRed,
+      ));
+      return;
+    }
     final auth = context.read<AuthProvider>();
     final ok = _isRegister
         ? await auth.signUp(_userCtrl.text.trim(), _passCtrl.text)
@@ -106,9 +129,50 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? 'Mínimo 6 caracteres'
                         : null,
                   ),
+                  if (_isRegister) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          value: _acceptedTerms,
+                          activeColor: WeRideColors.energyGreen,
+                          onChanged: (v) =>
+                              setState(() => _acceptedTerms = v ?? false),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () =>
+                                setState(() => _acceptedTerms = !_acceptedTerms),
+                            child: Text.rich(
+                              TextSpan(
+                                text: 'Acepto los ',
+                                style: const TextStyle(
+                                    color: WeRideColors.mediumGray),
+                                children: [
+                                  TextSpan(
+                                    text: 'Términos y Condiciones',
+                                    style: const TextStyle(
+                                      color: WeRideColors.energyGreen,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = _openTerms,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: auth.isLoading ? null : _submit,
+                    onPressed: (auth.isLoading ||
+                            (_isRegister && !_acceptedTerms))
+                        ? null
+                        : _submit,
                     child: auth.isLoading
                         ? const SizedBox(
                             height: 22,
@@ -120,8 +184,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: () =>
-                        setState(() => _isRegister = !_isRegister),
+                    onPressed: () => setState(() {
+                      _isRegister = !_isRegister;
+                      _acceptedTerms = false;
+                    }),
                     child: Text(
                       _isRegister
                           ? '¿Ya tienes cuenta? Inicia sesión'
