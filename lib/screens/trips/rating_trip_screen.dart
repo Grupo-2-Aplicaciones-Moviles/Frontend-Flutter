@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../providers/providers.dart';
 
 class RatingTripScreen extends StatefulWidget {
   final double kilometers;
   final Duration duration;
   final double cost;
+  final int? bookingId;
 
   const RatingTripScreen({
     super.key,
     required this.kilometers,
     required this.duration,
     required this.cost,
+    this.bookingId,
   });
 
   @override
@@ -32,6 +36,10 @@ class _RatingTripScreenState extends State<RatingTripScreen> {
   void _submitRating() {
     final comment = _commentCtrl.text.trim();
     // Enviar calificación al backend o manejar localmente
+    // Marcar reserva como 'realizado' localmente si se pasó bookingId
+    if (widget.bookingId != null) {
+      context.read<BookingProvider>().markBookingAsRealizado(widget.bookingId!);
+    }
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -39,7 +47,7 @@ class _RatingTripScreenState extends State<RatingTripScreen> {
         content: Text('Has calificado con $_stars estrellas.\n\nComentario: ${comment.isEmpty ? '—' : comment}'),
         actions: [
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
             child: const Text('Aceptar'),
           )
         ],
@@ -48,7 +56,11 @@ class _RatingTripScreenState extends State<RatingTripScreen> {
   }
 
   void _skip() {
-    Navigator.of(context).pop();
+    // Si se omite, también marcar la reserva como 'realizado' localmente
+    if (widget.bookingId != null) {
+      context.read<BookingProvider>().markBookingAsRealizado(widget.bookingId!);
+    }
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   String _formatDuration(Duration d) {

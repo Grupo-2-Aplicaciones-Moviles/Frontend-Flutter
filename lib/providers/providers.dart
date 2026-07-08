@@ -156,4 +156,40 @@ class BookingProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  /// Marca una reserva localmente como 'realizado'.
+  /// No depende del backend en este cambio mínimo.
+  Future<bool> markBookingAsRealizado(int bookingId) async {
+    try {
+      final index = bookings.indexWhere((b) => b.bookingId == bookingId);
+      if (index == -1) return false;
+      final b = bookings[index];
+      final updated = Booking(
+        bookingId: b.bookingId,
+        userId: b.userId,
+        vehicleId: b.vehicleId,
+        reservedAt: b.reservedAt,
+        startDate: b.startDate,
+        endDate: b.endDate,
+        actualStartDate: b.actualStartDate,
+        actualEndDate: b.actualEndDate,
+        status: 'realizado',
+        totalCost: b.totalCost,
+        discount: b.discount,
+        finalCost: b.finalCost,
+        paymentMethod: b.paymentMethod,
+        paymentStatus: b.paymentStatus,
+        distance: b.distance,
+        duration: b.duration,
+        rating: b.rating,
+      );
+      bookings[index] = updated;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
 }

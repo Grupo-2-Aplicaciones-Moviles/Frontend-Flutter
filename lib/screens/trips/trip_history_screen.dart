@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'start_trip_screen.dart';
+
 
 import '../../core/constants.dart';
 import '../../core/theme.dart';
@@ -135,10 +137,10 @@ class _TripHistoryScreenState extends State<TripHistoryScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _statusColor(b.status).withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                        decoration: BoxDecoration(
+                          color: _statusColor(b.status).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       child: Text(
                         AppConstants.statusDisplayName(b.status),
                         style: TextStyle(
@@ -167,15 +169,28 @@ class _TripHistoryScreenState extends State<TripHistoryScreen> {
                           fontWeight: FontWeight.bold),
                     ),
                   ),
-                if (canCancel)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => _cancel(b),
-                      child: const Text('Cancelar',
-                          style: TextStyle(color: WeRideColors.errorRed)),
-                    ),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (canCancel)
+                      TextButton(
+                        onPressed: () => _cancel(b),
+                        child: const Text('Cancelar',
+                            style: TextStyle(color: WeRideColors.errorRed)),
+                      ),
+                    const SizedBox(width: 8),
+                    if (b.status.toLowerCase() == 'confirmed')
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                StartTripScreen(booking: b),
+                          ),
+                        ),
+                        child: const Text('Iniciar viaje'),
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
